@@ -1,0 +1,28 @@
+nand
+
+.global vdd! gnd!
+
+.subckt nand a b vout
+m0 vout a vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout b vdd! vdd! P_18 w=3u l=180.00n m=1
+m2 vout a 1 1 N_18 w=1u l=180.00n m=1
+m3 1 b gnd! gnd! N_18 w=1u l=180.00n m=1
+.ends
+
+x1 a b out nand
+v1 vdd! 0 1.8
+v2 gnd! 0 0
+v3 a gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 5E-9 10E-9
+v4 b gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 10E-9 20E-9
+
+.lib 'cic018.l' TT
+
+.tran  1.00000E-09 30.00000E-09 START=  0.0000    
+.temp    25.0000    
+.op
+.save
+.option  post
+
+
+
+.end
