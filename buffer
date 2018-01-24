@@ -1,0 +1,30 @@
+buffer
+
+.global vdd! gnd!
+
+.subckt inv vin vout
+m0 vout vin vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout vin gnd! gnd! N_18 w=3u l=180.00n m=1
+.ends
+
+.subckt buffer vin vout
+x1 vin 1 inv
+x2 1 vout inv
+.ends
+
+x1 vin vout buffer
+v1 vdd! 0 1.8
+v2 gnd! 0 0
+v3 vin gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 5E-9 10E-9
+
+.lib 'cic018.l' TT
+
+.tran  1.00000E-09 30.00000E-09 START=  0.0000    
+.temp    25.0000    
+.op
+.save
+.option  post
+
+
+
+.end
