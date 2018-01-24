@@ -1,0 +1,53 @@
+2-4 decoder
+
+.global vdd! gnd!
+
+.subckt and a b out
+m0 vout a vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout b vdd! vdd! P_18 w=3u l=180.00n m=1
+m2 vout a 1 1 N_18 w=1u l=180.00n m=1
+m3 1 b gnd! gnd! N_18 w=1u l=180.00n m=1
+
+m4 out vout vdd! vdd! P_18 w=3u l=180.00n m=1
+m5 out vout gnd! gnd! N_18 w=3u l=180.00n m=1
+.ends
+
+.subckt inv vin vout
+m0 vout vin vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout vin gnd! gnd! N_18 w=3u l=180.00n m=1
+.ends
+
+.subckt thrand a b c out
+x1 a b 1 and
+x2 c 1 out and
+.ends
+
+.subckt twotofourdecoder s0 s1 en q0 q1 q2 q3
+x1 s0 1 inv
+x2 s1 2 inv
+x3 en s0 s1 q3 thrand
+x4 en 1 s1 q2 thrand
+x5 en s0 2 q1 thrand
+x6 en 1 2 q0 thrand
+.ends
+
+
+x1 s0 s1 en q0 q1 q2 q3 twotofourdecoder
+
+v1 vdd! 0 1.8
+v2 gnd! 0 0
+v3 s0 gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 5E-9 10E-9
+v4 s1 gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 10E-9 20E-9
+v5 en gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 15E-9 30E-9
+
+.lib 'cic018.l' TT
+
+.tran  1.00000E-09 30.00000E-09 START=  0.0000    
+.temp    25.0000    
+.op
+.save
+.option  post
+
+
+
+.end
