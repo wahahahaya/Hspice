@@ -1,0 +1,59 @@
+RS FLIP FLOP
+
+.global vdd! gnd!
+
+.subckt nand a b vout
+m0 vout a vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout b vdd! vdd! P_18 w=3u l=180.00n m=1
+m2 vout a 1 1 N_18 w=1u l=180.00n m=1
+m3 1 b gnd! gnd! N_18 w=1u l=180.00n m=1
+.ends
+
+.subckt and a b out
+m0 vout a vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout b vdd! vdd! P_18 w=3u l=180.00n m=1
+m2 vout a 1 1 N_18 w=1u l=180.00n m=1
+m3 1 b gnd! gnd! N_18 w=1u l=180.00n m=1
+
+m4 out vout vdd! vdd! P_18 w=3u l=180.00n m=1
+m5 out vout gnd! gnd! N_18 w=3u l=180.00n m=1
+.ends
+
+.subckt inv vin vout
+m0 vout vin vdd! vdd! P_18 w=3u l=180.00n m=1
+m1 vout vin gnd! gnd! N_18 w=3u l=180.00n m=1
+.ends
+
+.subckt thrnand a b c out
+x1 a b 1 and
+x2 1 c 2 and
+x3 2 out inv
+.ends
+
+.subckt rsff set clk reset presetbar clearbar q qbar
+x1 set clk net1 nand
+x2 reset clk net2 nand
+x3 net1 presetbar qbar q thrnand
+x4 net2 clearbar q qbar thrnand
+.ends
+
+x1 set clk reset presetbar clearbar q qbar rsff
+v1 vdd! 0 1.8
+v2 gnd! 0 0
+v3 set gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 10E-9 20E-9
+v4 reset gnd! pulse 1.8 0.0 1E-9 1E-9 1E-9 10E-9 20E-9
+v5 clk gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 5E-9 10E-9
+v6 clearbar 0 1.8
+v7 presetbar gnd! pulse 0.0 1.8 1E-9 1E-9 1E-9 5E-9 10E-9 
+
+.lib 'cic018.l' TT
+
+.tran  1.00000E-09 30.00000E-09 START=  0.0000    
+.temp    25.0000    
+.op
+.save
+.option  post
+
+
+
+.end
