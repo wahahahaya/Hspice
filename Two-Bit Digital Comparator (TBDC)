@@ -1,0 +1,64 @@
+Two-Bit Digital Comparator (TBDC)
+
+.global vdd! gnd!
+
+v1 vdd! 0 1.8
+v2 gnd! 0 0
+
+.subckt inv vin vout
+m0 vout vin vdd! vdd! P_18 w=1.5u l=0.35u
+m1 vout vin gnd! gnd! N_18 w=0.5u l=0.6u
+.ends
+
+.subckt and a b out
+m0 vout a vdd! vdd! P_18 w=1.5u l=0.35u
+m1 vout b vdd! vdd! P_18 w=1.5u l=0.35u
+m2 vout a 1 1 N_18 w=0.5u l=0.6u
+m3 1 b gnd! gnd! N_18 w=0.5u l=0.6u
+
+m4 out vout vdd! vdd! P_18 w=1.5u l=0.35u 
+m5 out vout gnd! gnd! N_18 w=0.5u l=0.6u 
+.ends
+
+.subckt nor a b vout
+m0 1 a vdd! vdd! P_18 w=1.5u l=0.35u 
+m1 vout b 1 1 P_18 w=1.5u l=0.35u 
+m2 vout a gnd! gnd! N_18 w=0.5u l=0.6u 
+m3 vout b gnd! gnd! N_18 w=0.5u l=0.6u 
+.ends
+
+.subckt OBDC A B AsmallB AlargeB AequalB
+x1 A invA inv
+x2 invA B AsmallB and
+x3 B invB inv
+x4 invB A AlargeB and
+x5 AsmallB AlargeB AequalB nor
+.ends
+
+.subckt TBDC Xa Ya Xb Yb XsmallY XequalY XlargeY
+x1 Xa Ya AsmallBa AlargeBa AequalBa OBDC
+x2 Xb Yb AsmallBb AlargeBb AequalBb OBDC
+x3 AequalBa AequalBb XequalY and
+x4 AlargeBa AequalBb a and
+x5 AsmallBa AequalBb b and
+x6 a AlargeBb 1 nor
+x7 1 XlargeY inv
+x8 b AsmallBb 2 nor
+x9 2 XsmallY inv
+.ends
+
+x1 X0 Y0 X1 Y1 XsmallY XequalY XlargeY TBDC
+c1 XsmallY gnd! 0.1pf
+c2 XequalY gnd! 0.1pf
+c3 XlargeY gnd! 0.1pf 
+.lib 'cic018.l' TT
+
+V3 X0 GND! PULSE ( 0V 1.8V 2u 1u 1u 9u 20u )
+V4 X1 GND! PULSE ( 0V 1.8V 2u 1u 1u 19u 40u )
+V5 Y0 GND! PULSE ( 0V 1.8V 2u 1u 1u 39u 80u )
+V6 Y1 GND! PULSE ( 0V 1.8V 2u 1u 1u 79u 160u )
+.MEAS TRAN Pmax AVG Power From = 2us To 162us
+.temp 27
+.options accurate=0 post=1
+.tran 0.01u 162u
+.end
